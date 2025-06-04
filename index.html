@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gmail Dot Trick – Modern</title>
+
+  <!-- Toastify CSS (để hiển thị Toast Notification đẹp) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+
+  <style>
+    /* ===== Reset & Base ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      background-color: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #333;
+      line-height: 1.5;
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    /* ===== Container & Header ===== */
+    .container {
+      max-width: 960px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #d9230f;
+      color: #fff;
+      padding: 20px 30px;
+    }
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    .dark-mode-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.95rem;
+    }
+    .dark-mode-toggle input[type="checkbox"] {
+      margin-right: 8px;
+      width: 18px;
+      height: 18px;
+      accent-color: #fff;
+      cursor: pointer;
+    }
+
+    /* ===== Main Content ===== */
+    .content {
+      padding: 20px 30px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="search"] {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 0.94rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      transition: border-color 0.2s;
+    }
+    .form-group input[type="text"]:focus,
+    .form-group input[type="search"]:focus {
+      border-color: #d9230f;
+      outline: none;
+    }
+    .checkbox-inline {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      margin-right: 20px;
+    }
+    .checkbox-inline input[type="checkbox"] {
+      margin-right: 6px;
+      width: 16px;
+      height: 16px;
+      accent-color: #d9230f;
+      cursor: pointer;
+    }
+
+    /* ===== Buttons ===== */
+    .btn {
+      display: inline-block;
+      background-color: #d9230f;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      margin-right: 10px;
+      margin-top: 4px;
+    }
+    .btn:hover {
+      background-color: #b71c05;
+    }
+    .btn:active {
+      transform: translateY(1px);
+    }
+    .btn-secondary {
+      background-color: #555;
+    }
+    .btn-secondary:hover {
+      background-color: #444;
+    }
+    .btn-secondary:active {
+      transform: translateY(1px);
+    }
+    .btn:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+
+    /* ===== Progress Bar ===== */
+    #progressContainer {
+      width: 100%;
+      background: #eee;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+      display: none;
+    }
+    #progressBar {
+      width: 0;
+      height: 100%;
+      background-color: #d9230f;
+      transition: width 0.2s;
+    }
+    #progressText {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      color: #555;
+      display: none;
+    }
+
+    /* ===== Result Panel ===== */
+    .result-panel {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      height: 380px;
+      overflow-y: auto;
+      background-color: #fafafa;
+    }
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #e1e1e1;
+      padding: 8px 12px;
+      border-bottom: 1px solid #ccc;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .result-list {
+      width: 100%;
+    }
+    .email-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid #eee;
+      transition: background 0.15s;
+      font-size: 0.93rem;
+    }
+    .email-item:nth-child(even) {
+      background: #fff;
+    }
+    .email-item:nth-child(odd) {
+      background: #f9f9f9;
+    }
+    .email-item:hover {
+      background: #f4f4f4;
+    }
+    .email-text {
+      font-family: "Courier New", Courier, monospace;
+      word-break: break-all;
+      flex: 1;
+      margin-left: 8px;
+      margin-right: 8px;
+    }
+    .email-text.used {
+      text-decoration: line-through;
+      color: #999;
+    }
+    .item-controls {
+      display: flex;
+      align-items: center;
+      margin-left: 12px;
+    }
+    .copy-btn {
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin-right: 10px;
+      color: #555;
+      transition: color 0.2s;
+    }
+    .copy-btn:hover {
+      color: #d9230f;
+    }
+    .used-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: #d9230f;
+      cursor: pointer;
+    }
+    .select-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: #d9230f;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .email-item.highlight {
+      background-color: #fff9c4;
+      transition: background-color 0.5s ease;
+    }
+
+    /* ===== Notification (số lượng & toast) ===== */
+    #countDisplay {
+      font-weight: 600;
+      color: #d9230f;
+    }
+
+    /* ===== Dark Mode Styles ===== */
+    body.dark {
+      background-color: #181a1b;
+      color: #e0e0e0;
+    }
+    body.dark .container {
+      background-color: #242526;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    body.dark input[type="text"],
+    body.dark input[type="search"] {
+      background-color: #2b2c2d;
+      color: #e0e0e0;
+      border-color: #444;
+    }
+    body.dark input[type="checkbox"] {
+      accent-color: #d9230f;
+    }
+    body.dark .checkbox-inline {
+      color: #ddd;
+    }
+    body.dark .btn-secondary {
+      background-color: #444;
+    }
+    body.dark .btn-secondary:hover {
+      background-color: #333;
+    }
+    body.dark .result-header {
+      background: #3a3b3c;
+      color: #e0e0e0;
+      border-bottom-color: #444;
+    }
+    body.dark .result-panel {
+      background-color: #1f1f1f;
+      border-color: #444;
+    }
+    body.dark .email-item:nth-child(odd) {
+      background-color: #2c2c2c;
+    }
+    body.dark .email-item:nth-child(even) {
+      background-color: #1f1f1f;
+    }
+    body.dark .email-item:hover {
+      background-color: #3a3b3c;
+    }
+    body.dark #progressContainer {
+      background: #333;
+    }
+    body.dark #progressBar {
+      background-color: #d9230f;
+    }
+    body.dark #progressText {
+      color: #ccc;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- HEADER -->
+    <div class="header">
+      <h1>Gmail Dot Trick – Modern</h1>
+      <!-- Dark Mode Toggle -->
+      <label class="dark-mode-toggle">
+        <input type="checkbox" id="darkModeToggle" />
+        Dark Mode
+      </label>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="content">
+      <!-- Nhập Username -->
+      <div class="form-group">
+        <label for="baseEmail">Phần Username (trước @gmail.com):</label>
+        <input type="text" id="baseEmail" placeholder="Ví dụ: abcdxyz12edsda2dadsad" />
+      </div>
+
+      <!-- Chọn domain -->
+      <div class="form-group">
+        <label class="checkbox-inline">
+          <input type="checkbox" id="optGmail" value="gmail.com" checked /> @gmail.com
+        </label>
+        <label class="checkbox-inline">
+          <input type="checkbox" id="optGooglemail" value="googlemail.com" /> @googlemail.com
+        </label>
+      </div>
+
+      <!-- Nút hành động -->
+      <div class="form-group">
+        <button class="btn" id="btnGenerate">TẠO DANH SÁCH</button>
+        <button class="btn btn-secondary" id="btnCopyAll" disabled>SAO CHÉP TẤT CẢ</button>
+        <button class="btn btn-secondary" id="btnDownloadTxt" disabled>TẢI FILE (.txt)</button>
+        <button class="btn btn-secondary" id="btnClearChecked" disabled>XOÁ ĐÁNH DẤU</button>
+      </div>
+
+      <!-- Thanh Tìm kiếm -->
+      <div class="form-group">
+        <label for="filterInput">Tìm kiếm (lọc) trong kết quả:</label>
+        <input type="search" id="filterInput" placeholder="Nhập từ khoá để lọc..." disabled />
+      </div>
+
+      <!-- Progress Bar & Text -->
+      <div id="progressContainer">
+        <div id="progressBar"></div>
+      </div>
+      <div id="progressText"></div>
+
+      <!-- Panel chứa kết quả -->
+      <div class="result-panel" id="resultPanel">
+        <div class="result-header">
+          <span>Tổng: <span id="countDisplay">0</span> emails</span>
+          <span>(Cuộn để xem)</span>
+        </div>
+        <div class="result-list" id="resultList">
+          <!-- Email items sẽ được đổ vào đây -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toastify JS (để hiển thị thông báo dạng toast) -->
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+  <script>
+    (function() {
+      // ==== Các phần tử DOM quan trọng ====
+      const baseInput       = document.getElementById('baseEmail');
+      const chkGmail        = document.getElementById('optGmail');
+      const chkGooglemail   = document.getElementById('optGooglemail');
+      const btnGenerate     = document.getElementById('btnGenerate');
+      const btnCopyAll      = document.getElementById('btnCopyAll');
+      const btnDownloadTxt  = document.getElementById('btnDownloadTxt');
+      const btnClearChecked = document.getElementById('btnClearChecked');
+      const filterInput     = document.getElementById('filterInput');
+      const resultList      = document.getElementById('resultList');
+      const countDisplay    = document.getElementById('countDisplay');
+      const progressContainer = document.getElementById('progressContainer');
+      const progressBar       = document.getElementById('progressBar');
+      const progressText      = document.getElementById('progressText');
+      const darkModeToggle  = document.getElementById('darkModeToggle');
+
+      // ==== State toàn cục ====
+      let currentBase       = "";
+      let currentDomains    = [];        // mảng lưu domain: ["gmail.com", "googlemail.com", ...]
+      let currentEmails     = [];        // mảng lưu toàn bộ email đã generate
+      let usedSet           = new Set(); // Set lưu email đã đánh dấu “Đã dùng”
+      let selectedSet       = new Set(); // Set lưu email đã “Select để copy”
+      let storageKeyUsed    = "";        // key localStorage cho “Đã dùng”
+      let worker            = null;      // biến chứa Web Worker
+
+      // ==== Hàm hiển thị Toast ====
+      function showToast(message, type = "success") {
+        Toastify({
+          text: message,
+          duration: 1800,
+          gravity: "top",
+          position: "right",
+          backgroundColor: type === "error" ? "#e74c3c" : "#27ae60"
+        }).showToast();
+      }
+
+      // ==== Lưu / Load trạng thái Dark Mode ====
+      function loadDarkMode() {
+        const val = localStorage.getItem("darkModeEnabled");
+        if (val === "true") {
+          document.body.classList.add("dark");
+          darkModeToggle.checked = true;
+        } else {
+          document.body.classList.remove("dark");
+          darkModeToggle.checked = false;
+        }
+      }
+      darkModeToggle.addEventListener("change", () => {
+        if (darkModeToggle.checked) {
+          document.body.classList.add("dark");
+          localStorage.setItem("darkModeEnabled", "true");
+        } else {
+          document.body.classList.remove("dark");
+          localStorage.setItem("darkModeEnabled", "false");
+        }
+      });
+
+      // ==== Lưu / Load username lần cuối (last base) ====
+      function loadLastBase() {
+        const last = localStorage.getItem("lastBaseUsername");
+        if (last) {
+          baseInput.value = last;
+        }
+      }
+      baseInput.addEventListener("blur", () => {
+        const val = baseInput.value.trim();
+        if (val) localStorage.setItem("lastBaseUsername", val);
+      });
+
+      // ==== Tính toán key localStorage cho “Đã dùng” ====
+      function getStorageKeyUsed(base, domainsArray) {
+        // Ví dụ: usedEmails:abcd123@gmail.com_googlemail.com
+        return `usedEmails:${base}@${domainsArray.join("_")}`;
+      }
+
+      // ==== Load Set email “Đã dùng” từ localStorage ====
+      function loadUsedSet() {
+        usedSet.clear();
+        if (!currentBase || !currentDomains.length) return;
+        const key = storageKeyUsed;
+        const json = localStorage.getItem(key);
+        if (!json) return;
+        try {
+          const arr = JSON.parse(json);
+          arr.forEach(e => usedSet.add(e));
+        } catch {
+          usedSet.clear();
+        }
+      }
+
+      // ==== Lưu Set email “Đã dùng” vào localStorage ====
+      function saveUsedSet() {
+        const key = storageKeyUsed;
+        const arr = Array.from(usedSet);
+        localStorage.setItem(key, JSON.stringify(arr));
+      }
+
+      // ==== Xóa toàn bộ “Đã dùng” cho bộ key hiện tại ====
+      function clearUsedInStorage() {
+        if (!storageKeyUsed) return;
+        localStorage.removeItem(storageKeyUsed);
+        usedSet.clear();
+      }
+
+      // ==== Hàm khởi tạo Web Worker để sinh dot-trick ====
+      function startWorkerGenerate(base, domains) {
+        // Nếu đã có worker cũ, terminate trước
+        if (worker) {
+          worker.terminate();
+          worker = null;
+        }
+
+        worker = new Worker("worker.js");
+        worker.postMessage({ base, domains });
+
+        // Hiển thị progress bar & text
+        progressContainer.style.display = "block";
+        progressBar.style.width = "0%";
+        progressText.style.display = "block";
+        progressText.textContent = "Đang sinh: 0%";
+
+        worker.onmessage = (e) => {
+          const data = e.data;
+          if (data.progress !== undefined && data.progress < 100) {
+            // Cập nhật tiến độ
+            const pct = data.progress;
+            progressBar.style.width = pct + "%";
+            progressText.textContent = `Đang sinh: ${pct}%`;
+          }
+          if (data.progress === 100 && data.emails) {
+            // Khi worker gửi xong kết quả
+            currentEmails = data.emails;
+            // Load lại usedSet từ localStorage
+            usedSet = new Set();
+            loadUsedSet();
+            // Hiển thị danh sách
+            renderEmailList();
+            // Cập nhật count
+            countDisplay.textContent = currentEmails.length.toLocaleString("vi-VN");
+            // Bật nút tương ứng
+            filterInput.disabled    = false;
+            btnCopyAll.disabled     = false;
+            btnDownloadTxt.disabled = false;
+            btnClearChecked.disabled= false;
+
+            showToast(`Hoàn thành: đã tạo ${currentEmails.length.toLocaleString("vi-VN")} email.`);
+
+            // Tắt progress bar sau 1.2s
+            setTimeout(() => {
+              progressContainer.style.display = "none";
+              progressText.style.display = "none";
+            }, 1200);
+
+            // Terminate worker
+            worker.terminate();
+            worker = null;
+          }
+        };
+
+        worker.onerror = (err) => {
+          console.error("Worker error:", err);
+          showToast("Đã xảy ra lỗi khi sinh danh sách.", "error");
+          worker.terminate();
+          worker = null;
+          progressContainer.style.display = "none";
+          progressText.style.display = "none";
+        };
+      }
+
+      // ==== Hàm render danh sách email ====
+      function renderEmailList() {
+        resultList.innerHTML = "";
+        const fragment = document.createDocumentFragment();
+        const base = currentBase;
+        const domains = currentDomains;
+
+        currentEmails.forEach(email => {
+          const item = document.createElement("div");
+          item.className = "email-item";
+
+          // Checkbox “Select để copy”
+          const selChk = document.createElement("input");
+          selChk.type = "checkbox";
+          selChk.className = "select-checkbox";
+          selChk.title = "Chọn email này để copy";
+          selChk.addEventListener("change", () => {
+            if (selChk.checked) {
+              selectedSet.add(email);
+            } else {
+              selectedSet.delete(email);
+            }
+            btnCopySelected.disabled = (selectedSet.size === 0);
+          });
+
+          // Span hiện email
+          const spanText = document.createElement("span");
+          spanText.className = "email-text";
+          spanText.textContent = email;
+          if (usedSet.has(email)) {
+            spanText.classList.add("used");
+          }
+
+          // Controls (Copy riêng + Checkbox “Đã dùng”)
+          const controls = document.createElement("div");
+          controls.className = "item-controls";
+
+          // Nút copy đơn
+          const copyBtn = document.createElement("button");
+          copyBtn.className = "copy-btn";
+          copyBtn.title = "Copy email này";
+          copyBtn.textContent = "📋";
+          copyBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(email).then(() => {
+              showToast(`Đã copy: ${email}`);
+            }).catch(() => {
+              alert("Không thể copy tự động. Vui lòng copy thủ công.");
+            });
+          });
+
+          // Checkbox “Đã dùng”
+          const usedChk = document.createElement("input");
+          usedChk.type = "checkbox";
+          usedChk.className = "used-checkbox";
+          usedChk.checked = usedSet.has(email);
+          usedChk.title = "Đánh dấu là 'Đã dùng'";
+          usedChk.addEventListener("change", () => {
+            if (usedChk.checked) {
+              usedSet.add(email);
+              spanText.classList.add("used");
+            } else {
+              usedSet.delete(email);
+              spanText.classList.remove("used");
+            }
+            saveUsedSet();
+          });
+
+          controls.appendChild(copyBtn);
+          controls.appendChild(usedChk);
+
+          item.appendChild(selChk);
+          item.appendChild(spanText);
+          item.appendChild(controls);
+
+          fragment.appendChild(item);
+        });
+
+        resultList.appendChild(fragment);
+      }
+
+      // ==== Hàm lọc (filter) danh sách theo từ khoá ====
+      filterInput.addEventListener("input", () => {
+        const keyword = filterInput.value.trim().toLowerCase();
+        const items = resultList.querySelectorAll(".email-item");
+        items.forEach(item => {
+          const txt = item.querySelector(".email-text").textContent.toLowerCase();
+          if (txt.includes(keyword)) {
+            item.style.display = "";
+          } else {
+            item.style.display = "none";
+          }
+        });
+        // Nếu user search > 3 ký tự, highlight dòng đầu tiên khớp
+        if (keyword.length > 3) {
+          const match = Array.from(items).find(item => {
+            const t = item.querySelector(".email-text").textContent.toLowerCase();
+            return t.includes(keyword);
+          });
+          if (match) {
+            const topPos = match.offsetTop;
+            document.getElementById("resultPanel").scrollTop = topPos - 20;
+            match.classList.add("highlight");
+            setTimeout(() => {
+              match.classList.remove("highlight");
+            }, 2000);
+          }
+        }
+      });
+
+      // ==== Nút “TẠO DANH SÁCH” ====
+      btnGenerate.addEventListener("click", () => {
+        const base = baseInput.value.trim();
+        // Loại bỏ toàn bộ dấu “.” gốc nếu có
+        const sanitized = base.replace(/\./g, "");
+        if (!sanitized) {
+          alert("Vui lòng nhập phần username (trước @gmail.com).");
+          return;
+        }
+        if (/[^a-zA-Z0-9]/.test(sanitized)) {
+          alert("Username chỉ chứa chữ (a-z, A-Z) và số (0-9), không chứa ký tự khác.");
+          return;
+        }
+
+        // Xác định domain được chọn
+        const domains = [];
+        if (chkGmail.checked) domains.push("gmail.com");
+        if (chkGooglemail.checked) domains.push("googlemail.com");
+        if (!domains.length) {
+          alert("Vui lòng chọn ít nhất một domain (@gmail.com hoặc @googlemail.com).");
+          return;
+        }
+
+        // Lưu lại state
+        currentBase = sanitized;
+        currentDomains = domains.slice(); // copy
+        storageKeyUsed = getStorageKeyUsed(sanitized, domains);
+
+        // Lưu lastBaseUsername
+        localStorage.setItem("lastBaseUsername", sanitized);
+
+        // Cảnh báo nếu username quá dài → số tổ hợp rất lớn
+        if (sanitized.length > 20) {
+          const c = confirm("⚠️ Username khá dài, số email sinh ra có thể rất lớn và làm đơ trình duyệt. Tiếp tục?");
+          if (!c) return;
+        }
+
+        // Tắt các nút trước khi chạy
+        filterInput.disabled = true;
+        btnCopyAll.disabled = true;
+        btnDownloadTxt.disabled = true;
+        btnClearChecked.disabled = true;
+        resultList.innerHTML = "";
+        countDisplay.textContent = "0";
+        selectedSet.clear();
+
+        // Bắt đầu bằng Web Worker
+        startWorkerGenerate(sanitized, domains);
+      });
+
+      // ==== Nút “SAO CHÉP TẤT CẢ” ====
+      btnCopyAll.addEventListener("click", () => {
+        // Lấy tất cả item đang hiển thị (chưa lọc)
+        const visibleItems = Array.from(resultList.querySelectorAll(".email-item"))
+          .filter(item => item.style.display !== "none");
+        if (!visibleItems.length) {
+          alert("Không có email nào để copy.");
+          return;
+        }
+        const toCopy = visibleItems.map(item => item.querySelector(".email-text").textContent)
+                                   .join("\n");
+        navigator.clipboard.writeText(toCopy).then(() => {
+          showToast(`Đã copy ${visibleItems.length.toLocaleString("vi-VN")} email.`);
+        }).catch(() => {
+          alert("Không thể copy tự động. Vui lòng copy thủ công.");
+        });
+      });
+
+      // ==== Nút “TẢI FILE (.txt)” ====
+      btnDownloadTxt.addEventListener("click", () => {
+        const visibleItems = Array.from(resultList.querySelectorAll(".email-item"))
+          .filter(item => item.style.display !== "none");
+        if (!visibleItems.length) {
+          alert("Chưa có dữ liệu để tải file.");
+          return;
+        }
+        const data = visibleItems.map(item => item.querySelector(".email-text").textContent)
+                                  .join("\n");
+        const ts = new Date().toISOString().replace(/[:.]/g, "-");
+        const domainsKey = currentDomains.join("_");
+        const fname = `${currentBase}_${domainsKey}_${ts}.txt`;
+        downloadAsFile(fname, data);
+      });
+
+      // ==== Nút “XOÁ ĐÁNH DẤU” ====
+      btnClearChecked.addEventListener("click", () => {
+        if (!currentBase) return;
+        if (!confirm("Bạn có chắc muốn xoá mọi dấu “Đã dùng” và dọn localStorage?")) return;
+        // Xóa trong storage
+        clearUsedInStorage();
+        // Bỏ check, bỏ class “used”
+        resultList.querySelectorAll(".email-item").forEach(item => {
+          const span = item.querySelector(".email-text");
+          const chk = item.querySelector(".used-checkbox");
+          chk.checked = false;
+          span.classList.remove("used");
+        });
+        showToast("Đã xoá tất cả dấu “Đã dùng”.");
+      });
+
+      // ==== Nút “SAO CHÉP ĐÃ CHỌN” (Multi-select) ====
+      // Chúng ta sẽ tạo nút này động, chỉ enable khi có ít nhất 1 email được chọn
+      const btnCopySelected = document.createElement("button");
+      btnCopySelected.className = "btn btn-secondary";
+      btnCopySelected.id = "btnCopySelected";
+      btnCopySelected.innerText = "SAO CHÉP ĐÃ CHỌN";
+      btnCopySelected.disabled = true;
+      // Thêm vào sau btnClearChecked
+      btnClearChecked.insertAdjacentElement("afterend", btnCopySelected);
+      btnCopySelected.addEventListener("click", () => {
+        if (!selectedSet.size) return;
+        const arr = Array.from(selectedSet);
+        const text = arr.join("\n");
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(`Đã copy ${arr.length.toLocaleString("vi-VN")} email đã chọn.`);
+        }).catch(() => {
+          alert("Không thể copy tự động. Vui lòng copy thủ công.");
+        });
+      });
+
+      // Khi bất kỳ checkbox “select” nào thay đổi (đã gán event listener trong render),
+      // btnCopySelected sẽ được enable/disable tương ứng (xem trong renderEmailList).
+
+      // ==== Hàm download file txt/csv ====
+      function downloadAsFile(filename, content) {
+        const blob = new Blob([content], { type: "text/plain" });
+        const url  = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      // ==== Các phím tắt (Shortcuts) ====
+      document.addEventListener("keydown", (e) => {
+        // Ctrl + Shift + G → focus vào input username
+        if (e.ctrlKey && e.shiftKey && e.code === "KeyG") {
+          e.preventDefault();
+          baseInput.focus();
+        }
+        // Ctrl + Shift + C → copy all
+        if (e.ctrlKey && e.shiftKey && e.code === "KeyC") {
+          e.preventDefault();
+          if (!btnCopyAll.disabled) btnCopyAll.click();
+        }
+        // Ctrl + F → focus vào filter
+        if (e.ctrlKey && e.key === "f") {
+          e.preventDefault();
+          if (!filterInput.disabled) filterInput.focus();
+        }
+        // Ctrl + D → clear đánh dấu “Đã dùng”
+        if (e.ctrlKey && e.code === "KeyD") {
+          e.preventDefault();
+          if (!btnClearChecked.disabled) btnClearChecked.click();
+        }
+      });
+
+      // ==== Khi trang load lần đầu ====
+      window.addEventListener("DOMContentLoaded", () => {
+        loadDarkMode();
+        loadLastBase();
+      });
+    })();
+  </script>
+</body>
+</html>
